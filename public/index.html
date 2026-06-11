@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventário de Computadores</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --border:    #2a2d3a;
+      --accent:    #4f8ef7;
+      --accent-h:  #3a76e0;
+      --danger:    #e05c5c;
+      --danger-h:  #c44444;
+      --warning:   #f0a040;
+      --warning-h: #d88c2a;
+      --text:      #e2e4ed;
+      --muted:     #8b8fa8;
+      --radius:    8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+      margin-bottom: 1.8rem;
+      color: var(--text);
+    }
+
+    h1 span { color: var(--accent); }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    /* ── Formulário ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 1.2rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      flex: 1 1 160px;
+    }
+
+    .field.wide { flex: 2 1 240px; }
+
+    label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: .95rem;
+      padding: .55rem .8rem;
+      outline: none;
+      transition: border-color .18s;
+      width: 100%;
+    }
+
+    input:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+
+    button.btn-add {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      cursor: pointer;
+      font-size: .95rem;
+      font-weight: 600;
+      padding: .57rem 1.4rem;
+      transition: background .18s;
+      white-space: nowrap;
+      align-self: flex-end;
+    }
+
+    button.btn-add:hover { background: var(--accent-h); }
+    button.btn-add:active { transform: scale(.97); }
+
+    /* ── Mensagem de erro ── */
+    .msg-error {
+      display: none;
+      margin-top: 1rem;
+      background: rgba(224,92,92,.12);
+      border: 1px solid var(--danger);
+      border-radius: var(--radius);
+      color: #f08080;
+      font-size: .9rem;
+      padding: .65rem 1rem;
+    }
+
+    .msg-error.visible { display: block; }
+
+    /* ── Tabela ── */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 540px;
+    }
+
+    thead th {
+      background: var(--surface);
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .7px;
+      padding: .85rem 1rem;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    tbody tr {
+      border-top: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    tbody tr:hover { background: var(--surface); }
+
+    td {
+      color: var(--text);
+      font-size: .92rem;
+      padding: .8rem 1rem;
+      vertical-align: middle;
+    }
+
+    td.mono {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: .88rem;
+      color: #a5c8ff;
+    }
+
+    td.muted { color: var(--muted); font-size: .88rem; }
+
+    .btn-actions { display: flex; gap: .4rem; }
+
+    button.btn-del {
+      background: transparent;
+      border: 1px solid var(--danger);
+      border-radius: var(--radius);
+      color: var(--danger);
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+      padding: .3rem .75rem;
+      transition: background .15s, color .15s;
+    }
+
+    button.btn-del:hover { background: var(--danger); color: #fff; }
+
+    button.btn-edit {
+      background: transparent;
+      border: 1px solid var(--warning);
+      border-radius: var(--radius);
+      color: var(--warning);
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+      padding: .3rem .75rem;
+      transition: background .15s, color .15s;
+    }
+
+    button.btn-edit:hover { background: var(--warning); color: #fff; }
+
+    .empty-row td {
+      color: var(--muted);
+      font-size: .9rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+
+    .modal-overlay[hidden] { display: none; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .modal h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 1.2rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: .6rem;
+      margin-top: 1.2rem;
+    }
+
+    button.btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .95rem;
+      font-weight: 600;
+      padding: .57rem 1.2rem;
+      transition: border-color .18s, color .18s;
+    }
+
+    button.btn-cancel:hover { border-color: var(--text); color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Inventário de <span>Computadores</span></h1>
+
+    <div class="card">
+      <h2>Adicionar máquina</h2>
+      <form id="form-add">
+        <div class="form-row">
+          <div class="field">
+            <label for="ip">Endereço IP</label>
+            <input id="ip" type="text" placeholder="192.168.0.10" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="mac">Endereço MAC</label>
+            <input id="mac" type="text" placeholder="00:1A:2B:3C:4D:5E" autocomplete="off" />
+          </div>
+          <div class="field wide">
+            <label for="descricao">Descrição</label>
+            <input id="descricao" type="text" placeholder="Ex.: Recepção — Dell Optiplex" autocomplete="off" />
+          </div>
+          <button class="btn-add" type="submit">Adicionar</button>
+        </div>
+        <div class="msg-error" id="msg-error"></div>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>IP</th>
+            <th>MAC</th>
+            <th>Descrição</th>
+            <th>Cadastrado em</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal de edição -->
+  <div id="modal-edit" class="modal-overlay" hidden>
+    <div class="modal">
+      <h2>Editar máquina</h2>
+      <form id="form-edit">
+        <input type="hidden" id="edit-id" />
+        <div class="form-row">
+          <div class="field">
+            <label for="edit-ip">Endereço IP</label>
+            <input id="edit-ip" type="text" placeholder="192.168.0.10" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="edit-mac">Endereço MAC</label>
+            <input id="edit-mac" type="text" placeholder="00:1A:2B:3C:4D:5E" autocomplete="off" />
+          </div>
+          <div class="field wide">
+            <label for="edit-descricao">Descrição</label>
+            <input id="edit-descricao" type="text" placeholder="Ex.: Recepção — Dell Optiplex" autocomplete="off" />
+          </div>
+        </div>
+        <div class="msg-error" id="edit-msg-error"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btn-cancel-edit">Cancelar</button>
+          <button type="submit" class="btn-add">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const tbody      = document.getElementById('tbody');
+    const form       = document.getElementById('form-add');
+    const msgErr     = document.getElementById('msg-error');
+    const modalEdit  = document.getElementById('modal-edit');
+    const formEdit   = document.getElementById('form-edit');
+    const editMsgErr = document.getElementById('edit-msg-error');
+
+    function esc(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function showError(msg) {
+      msgErr.textContent = msg;
+      msgErr.classList.add('visible');
+    }
+
+    function clearError() {
+      msgErr.textContent = '';
+      msgErr.classList.remove('visible');
+    }
+
+    function renderRows(list) {
+      if (!list.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Nenhuma máquina cadastrada.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(c => `
+        <tr>
+          <td class="muted">${esc(c.id)}</td>
+          <td class="mono">${esc(c.ip)}</td>
+          <td class="mono">${esc(c.mac)}</td>
+          <td>${esc(c.descricao) || '<span style="color:var(--muted)">—</span>'}</td>
+          <td class="muted">${esc(formatDate(c.criado_em))}</td>
+          <td>
+            <div class="btn-actions">
+              <button class="btn-edit" data-id="${esc(c.id)}" data-ip="${esc(c.ip)}" data-mac="${esc(c.mac)}" data-descricao="${esc(c.descricao ?? '')}">Editar</button>
+              <button class="btn-del" data-id="${esc(c.id)}">Remover</button>
+            </div>
+          </td>
+        </tr>`).join('');
+    }
+
+    async function load() {
+      try {
+        const res  = await fetch('/api/computadores');
+        const data = await res.json();
+        renderRows(data);
+      } catch {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Erro ao carregar dados.</td></tr>';
+      }
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      clearError();
+
+      const ip        = document.getElementById('ip').value.trim();
+      const mac       = document.getElementById('mac').value.trim();
+      const descricao = document.getElementById('descricao').value.trim();
+
+      try {
+        const res  = await fetch('/api/computadores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, mac, descricao }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) { showError(data.erro ?? 'Erro desconhecido.'); return; }
+
+        form.reset();
+        load();
+      } catch {
+        showError('Não foi possível conectar ao servidor.');
+      }
+    });
+
+    tbody.addEventListener('click', async e => {
+      // Excluir
+      const btnDel = e.target.closest('.btn-del');
+      if (btnDel) {
+        if (!confirm('Tem certeza que deseja excluir esta máquina?')) return;
+
+        const id = btnDel.dataset.id;
+        btnDel.disabled = true;
+        btnDel.textContent = '...';
+
+        try {
+          const res = await fetch(`/api/computadores/${id}`, { method: 'DELETE' });
+          if (res.ok || res.status === 404) { load(); return; }
+          const data = await res.json();
+          showError(data.erro ?? 'Erro ao remover.');
+          btnDel.disabled = false;
+          btnDel.textContent = 'Remover';
+        } catch {
+          showError('Não foi possível conectar ao servidor.');
+          btnDel.disabled = false;
+          btnDel.textContent = 'Remover';
+        }
+        return;
+      }
+
+      // Editar
+      const btnEdit = e.target.closest('.btn-edit');
+      if (btnEdit) {
+        document.getElementById('edit-id').value         = btnEdit.dataset.id;
+        document.getElementById('edit-ip').value         = btnEdit.dataset.ip;
+        document.getElementById('edit-mac').value        = btnEdit.dataset.mac;
+        document.getElementById('edit-descricao').value  = btnEdit.dataset.descricao;
+        editMsgErr.textContent = '';
+        editMsgErr.classList.remove('visible');
+        modalEdit.hidden = false;
+      }
+    });
+
+    document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+      modalEdit.hidden = true;
+    });
+
+    modalEdit.addEventListener('click', e => {
+      if (e.target === modalEdit) modalEdit.hidden = true;
+    });
+
+    formEdit.addEventListener('submit', async e => {
+      e.preventDefault();
+      editMsgErr.textContent = '';
+      editMsgErr.classList.remove('visible');
+
+      const id        = document.getElementById('edit-id').value;
+      const ip        = document.getElementById('edit-ip').value.trim();
+      const mac       = document.getElementById('edit-mac').value.trim();
+      const descricao = document.getElementById('edit-descricao').value.trim();
+
+      try {
+        const res  = await fetch(`/api/computadores/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, mac, descricao }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          editMsgErr.textContent = data.erro ?? 'Erro desconhecido.';
+          editMsgErr.classList.add('visible');
+          return;
+        }
+
+        modalEdit.hidden = true;
+        load();
+      } catch {
+        editMsgErr.textContent = 'Não foi possível conectar ao servidor.';
+        editMsgErr.classList.add('visible');
+      }
+    });
+
+    load();
+  </script>
+</body>
+</html>
