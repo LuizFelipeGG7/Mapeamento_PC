@@ -18,11 +18,29 @@ async function init() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS computadores (
       id        SERIAL PRIMARY KEY,
-      ip        TEXT NOT NULL,
-      mac       TEXT NOT NULL,
+      ip        TEXT NOT NULL UNIQUE,
+      mac       TEXT NOT NULL UNIQUE,
       descricao TEXT,
       criado_em TIMESTAMP NOT NULL DEFAULT now()
     )
+  `);
+  // Garante restrições em tabelas já existentes
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'computadores' AND constraint_name = 'computadores_ip_key'
+      ) THEN
+        ALTER TABLE computadores ADD CONSTRAINT computadores_ip_key UNIQUE (ip);
+      END IF;
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'computadores' AND constraint_name = 'computadores_mac_key'
+      ) THEN
+        ALTER TABLE computadores ADD CONSTRAINT computadores_mac_key UNIQUE (mac);
+      END IF;
+    END $$;
   `);
 }
 
@@ -57,6 +75,10 @@ app.post('/api/computadores', async (req, res) => {
     );
     res.status(201).json(rows[0]);
   } catch (err) {
+    if (err.code === '23505') {
+      const campo = err.constraint?.includes('mac') ? 'MAC' : 'IP';
+      return res.status(409).json({ erro: `${campo} já cadastrado.` });
+    }
     console.error(err);
     res.status(500).json({ erro: 'Erro ao salvar no banco de dados.' });
   }
@@ -85,6 +107,10 @@ app.put('/api/computadores/:id', async (req, res) => {
     if (rowCount === 0) return res.status(404).json({ erro: 'Registro não encontrado.' });
     res.json(rows[0]);
   } catch (err) {
+    if (err.code === '23505') {
+      const campo = err.constraint?.includes('mac') ? 'MAC' : 'IP';
+      return res.status(409).json({ erro: `${campo} já cadastrado em outro registro.` });
+    }
     console.error(err);
     res.status(500).json({ erro: 'Erro ao atualizar o banco de dados.' });
   }
