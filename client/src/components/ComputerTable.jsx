@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 function formatDate(iso) {
   return new Date(iso).toLocaleString('pt-BR', {
     dateStyle: 'short',
@@ -6,7 +8,30 @@ function formatDate(iso) {
   })
 }
 
+function ipToNum(ip) {
+  return ip.split('.').reduce((acc, oct) => (acc * 256) + parseInt(oct, 10), 0)
+}
+
+const SORT_STATES = [null, 'asc', 'desc']
+const SORT_ICONS  = { null: '⇅', asc: '↑', desc: '↓' }
+
 export default function ComputerTable({ computers, loading, onEdit, onDelete }) {
+  const [sort, setSort] = useState(null)
+
+  function cycleSort() {
+    setSort(prev => {
+      const next = SORT_STATES[(SORT_STATES.indexOf(prev) + 1) % SORT_STATES.length]
+      return next
+    })
+  }
+
+  const sorted = sort
+    ? [...computers].sort((a, b) => {
+        const diff = ipToNum(a.ip) - ipToNum(b.ip)
+        return sort === 'asc' ? diff : -diff
+      })
+    : computers
+
   if (loading) {
     return (
       <div className="table-wrap">
@@ -23,7 +48,11 @@ export default function ComputerTable({ computers, loading, onEdit, onDelete }) 
         <thead>
           <tr>
             <th>#</th>
-            <th>IP</th>
+            <th>
+              <button className="th-sort" onClick={cycleSort}>
+                IP <span className={sort ? 'sort-icon active' : 'sort-icon'}>{SORT_ICONS[sort]}</span>
+              </button>
+            </th>
             <th>MAC</th>
             <th>Descrição</th>
             <th>Cadastrado em</th>
@@ -31,12 +60,12 @@ export default function ComputerTable({ computers, loading, onEdit, onDelete }) 
           </tr>
         </thead>
         <tbody>
-          {computers.length === 0 ? (
+          {sorted.length === 0 ? (
             <tr className="empty-row">
               <td colSpan="6">Nenhuma máquina cadastrada.</td>
             </tr>
           ) : (
-            computers.map(c => (
+            sorted.map(c => (
               <tr key={c.id}>
                 <td className="muted">{c.id}</td>
                 <td className="mono">{c.ip}</td>

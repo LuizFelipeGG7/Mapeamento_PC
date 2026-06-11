@@ -194,6 +194,31 @@ button.btn-edit {
 
 button.btn-edit:hover { background: var(--warning); color: #fff; }
 
+button.th-sort {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+button.th-sort:hover { color: var(--text); }
+
+.sort-icon {
+  color: var(--border);
+  font-size: .85rem;
+  transition: color .15s;
+}
+
+.sort-icon.active { color: var(--accent); }
+
 .empty-row td {
   color: var(--muted);
   font-size: .9rem;
