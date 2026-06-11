@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 export default function AddForm({ onAdd }) {
-  const [ip, setIp]             = useState('')
-  const [mac, setMac]           = useState('')
+  const [ip, setIp]               = useState('')
+  const [mac, setMac]             = useState('')
   const [descricao, setDescricao] = useState('')
-  const [erro, setErro]         = useState('')
+  const [erro, setErro]           = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -57,9 +58,25 @@ export default function AddForm({ onAdd }) {
               onChange={e => setDescricao(e.target.value)}
             />
           </div>
-          <button className="btn-add" type="submit">Adicionar</button>
+          <motion.button
+            className="btn-add"
+            type="submit"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Adicionar
+          </motion.button>
         </div>
-        {erro && <div className="msg-error">{erro}</div>}
+        {erro && (
+          <motion.div
+            className="msg-error"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {erro}
+          </motion.div>
+        )}
       </form>
     </div>
   )

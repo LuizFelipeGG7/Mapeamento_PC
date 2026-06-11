@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import AddForm from './components/AddForm'
 import ComputerTable from './components/ComputerTable'
 import EditModal from './components/EditModal'
 
 export default function App() {
-  const [computers, setComputers]       = useState([])
-  const [loading, setLoading]           = useState(true)
-  const [editingComputer, setEditing]   = useState(null)
+  const [computers, setComputers]     = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [editingComputer, setEditing] = useState(null)
 
   async function load() {
     try {
@@ -50,21 +51,45 @@ export default function App() {
 
   return (
     <div className="container">
-      <h1>Inventário de <span>Computadores</span></h1>
-      <AddForm onAdd={handleAdd} />
-      <ComputerTable
-        computers={computers}
-        loading={loading}
-        onEdit={setEditing}
-        onDelete={handleDelete}
-      />
-      {editingComputer && (
-        <EditModal
-          computer={editingComputer}
-          onSave={handleSave}
-          onClose={() => setEditing(null)}
+      <motion.h1
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        Inventário de <span>Computadores</span>
+      </motion.h1>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <AddForm onAdd={handleAdd} />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.18 }}
+      >
+        <ComputerTable
+          computers={computers}
+          loading={loading}
+          onEdit={setEditing}
+          onDelete={handleDelete}
         />
-      )}
+      </motion.div>
+
+      <AnimatePresence>
+        {editingComputer && (
+          <EditModal
+            key="edit-modal"
+            computer={editingComputer}
+            onSave={handleSave}
+            onClose={() => setEditing(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

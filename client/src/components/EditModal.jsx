@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 export default function EditModal({ computer, onSave, onClose }) {
-  const [ip, setIp]             = useState(computer.ip)
-  const [mac, setMac]           = useState(computer.mac)
+  const [ip, setIp]               = useState(computer.ip)
+  const [mac, setMac]             = useState(computer.mac)
   const [descricao, setDescricao] = useState(computer.descricao ?? '')
-  const [erro, setErro]         = useState('')
+  const [erro, setErro]           = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -21,8 +22,21 @@ export default function EditModal({ computer, onSave, onClose }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal">
+    <motion.div
+      className="modal-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={handleOverlayClick}
+    >
+      <motion.div
+        className="modal"
+        initial={{ opacity: 0, y: 32, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.97 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+      >
         <h2>Editar máquina</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-row">
@@ -62,11 +76,24 @@ export default function EditModal({ computer, onSave, onClose }) {
           </div>
           {erro && <div className="msg-error">{erro}</div>}
           <div className="modal-actions">
-            <button type="button" className="btn-cancel" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn-add">Salvar</button>
+            <motion.button
+              type="button"
+              className="btn-cancel"
+              onClick={onClose}
+              whileTap={{ scale: 0.96 }}
+            >
+              Cancelar
+            </motion.button>
+            <motion.button
+              type="submit"
+              className="btn-add"
+              whileTap={{ scale: 0.96 }}
+            >
+              Salvar
+            </motion.button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
