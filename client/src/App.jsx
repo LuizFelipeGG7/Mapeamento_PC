@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import AddForm from './components/AddForm'
 import ComputerTable from './components/ComputerTable'
 import EditModal from './components/EditModal'
+import ConfirmModal from './components/ConfirmModal'
 
 export default function App() {
   const [computers, setComputers]     = useState([])
   const [loading, setLoading]         = useState(true)
   const [editingComputer, setEditing] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
 
   async function load() {
     try {
@@ -31,9 +33,9 @@ export default function App() {
     load()
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Tem certeza que deseja excluir esta máquina?')) return
-    const res = await fetch(`/api/computadores/${id}`, { method: 'DELETE' })
+  async function confirmDelete() {
+    const res = await fetch(`/api/computadores/${pendingDelete}`, { method: 'DELETE' })
+    setPendingDelete(null)
     if (res.ok || res.status === 404) load()
   }
 
@@ -76,7 +78,7 @@ export default function App() {
           computers={computers}
           loading={loading}
           onEdit={setEditing}
-          onDelete={handleDelete}
+          onDelete={setPendingDelete}
         />
       </motion.div>
 
@@ -87,6 +89,14 @@ export default function App() {
             computer={editingComputer}
             onSave={handleSave}
             onClose={() => setEditing(null)}
+          />
+        )}
+        {pendingDelete !== null && (
+          <ConfirmModal
+            key="confirm-modal"
+            message="Esta ação é permanente e não pode ser desfeita."
+            onConfirm={confirmDelete}
+            onClose={() => setPendingDelete(null)}
           />
         )}
       </AnimatePresence>
