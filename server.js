@@ -3,7 +3,10 @@ import pg from 'pg';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-const { Pool } = pg;
+const { Pool, types } = pg;
+
+// TIMESTAMP WITHOUT TIME ZONE vem do Neon em UTC — força interpretação correta
+types.setTypeParser(1114, str => new Date(str.replace(' ', 'T') + 'Z'));
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
