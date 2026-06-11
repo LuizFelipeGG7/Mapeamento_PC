@@ -4,10 +4,15 @@
   "description": "Inventário de computadores — IP, MAC e descrição",
   "type": "module",
   "scripts": {
-    "start": "node --env-file=.env server.js"
+    "start": "node --env-file=.env server.js",
+    "dev": "concurrently \"node --env-file=.env server.js\" \"cd client && npm run dev\"",
+    "build": "cd client && npm run build"
   },
   "dependencies": {
     "express": "^4.19.2",
     "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
   }
 }

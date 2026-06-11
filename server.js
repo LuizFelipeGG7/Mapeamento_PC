@@ -25,7 +25,7 @@ async function init() {
 
 const app = express();
 app.use(express.json());
-app.use(express.static(join(__dirname, 'public')));
+app.use(express.static(join(__dirname, 'client/dist')));
 
 app.get('/api/computadores', async (req, res) => {
   try {
@@ -102,6 +102,8 @@ app.delete('/api/computadores/:id', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao remover do banco de dados.' });
   }
 });
+
+app.get('*', (_req, res) => res.sendFile(join(__dirname, 'client/dist/index.html')));
 
 const PORT = process.env.PORT ?? 3000;
 
