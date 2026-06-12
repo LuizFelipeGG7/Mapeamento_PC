@@ -73,6 +73,8 @@ export default function AddForm({ onAdd }) {
               onChange={e => setDescricao(e.target.value)}
             />
           </div>
+        </div>
+        <div className="form-actions">
           <motion.button
             className="btn-add"
             type="submit"

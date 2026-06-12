@@ -142,6 +142,12 @@ select:focus {
 
 select option { background: #1e2130; }
 
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: .75rem;
+}
+
 button.btn-add {
   background: var(--accent-grad);
   border: none;
