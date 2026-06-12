@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { TIPOS } from '../tipos'
+import { DEPARTAMENTOS } from '../departamentos'
 
 export default function EditModal({ computer, onSave, onClose }) {
-  const [tipo, setTipo]           = useState(computer.tipo ?? 'computador')
+  const [tipo, setTipo]                 = useState(computer.tipo ?? 'computador')
+  const [departamento, setDepartamento] = useState(computer.departamento ?? 'ti')
   const [ip, setIp]               = useState(computer.ip)
   const [mac, setMac]             = useState(computer.mac)
   const [descricao, setDescricao] = useState(computer.descricao ?? '')
@@ -13,7 +15,7 @@ export default function EditModal({ computer, onSave, onClose }) {
     e.preventDefault()
     setErro('')
     try {
-      await onSave(computer.id, ip.trim(), mac.trim(), descricao.trim(), tipo)
+      await onSave(computer.id, ip.trim(), mac.trim(), descricao.trim(), tipo, departamento)
     } catch (err) {
       setErro(err.message)
     }
@@ -44,13 +46,17 @@ export default function EditModal({ computer, onSave, onClose }) {
           <div className="form-row">
             <div className="field">
               <label htmlFor="edit-tipo">Tipo</label>
-              <select
-                id="edit-tipo"
-                value={tipo}
-                onChange={e => setTipo(e.target.value)}
-              >
+              <select id="edit-tipo" value={tipo} onChange={e => setTipo(e.target.value)}>
                 {TIPOS.map(t => (
                   <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="edit-departamento">Departamento</label>
+              <select id="edit-departamento" value={departamento} onChange={e => setDepartamento(e.target.value)}>
+                {DEPARTAMENTOS.map(d => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
                 ))}
               </select>
             </div>

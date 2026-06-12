@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { TIPOS } from '../tipos'
+import { DEPARTAMENTOS } from '../departamentos'
 
 export default function AddForm({ onAdd }) {
-  const [tipo, setTipo]           = useState('computador')
-  const [ip, setIp]               = useState('')
+  const [tipo, setTipo]               = useState('computador')
+  const [departamento, setDepartamento] = useState('ti')
+  const [ip, setIp]                   = useState('')
   const [mac, setMac]             = useState('')
   const [descricao, setDescricao] = useState('')
   const [erro, setErro]           = useState('')
@@ -13,11 +15,12 @@ export default function AddForm({ onAdd }) {
     e.preventDefault()
     setErro('')
     try {
-      await onAdd(ip.trim(), mac.trim(), descricao.trim(), tipo)
+      await onAdd(ip.trim(), mac.trim(), descricao.trim(), tipo, departamento)
       setIp('')
       setMac('')
       setDescricao('')
       setTipo('computador')
+      setDepartamento('ti')
     } catch (err) {
       setErro(err.message)
     }
@@ -30,13 +33,17 @@ export default function AddForm({ onAdd }) {
         <div className="form-row">
           <div className="field">
             <label htmlFor="tipo">Tipo</label>
-            <select
-              id="tipo"
-              value={tipo}
-              onChange={e => setTipo(e.target.value)}
-            >
+            <select id="tipo" value={tipo} onChange={e => setTipo(e.target.value)}>
               {TIPOS.map(t => (
                 <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="departamento">Departamento</label>
+            <select id="departamento" value={departamento} onChange={e => setDepartamento(e.target.value)}>
+              {DEPARTAMENTOS.map(d => (
+                <option key={d.value} value={d.value}>{d.label}</option>
               ))}
             </select>
           </div>

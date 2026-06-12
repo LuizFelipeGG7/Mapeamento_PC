@@ -14,16 +14,23 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const IPV4_RE      = /^((25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)$/;
 const MAC_RE       = /^([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}$/;
 const TIPOS_VALIDOS = ['computador', 'impressora', 'antena_wifi', 'nvd', 'camera', 'servidor'];
+const DEPTOS_VALIDOS = [
+  'administrativo','financeiro','ti','rh','contabilidade','juridico','graneleiro',
+  'veterinaria','transporte','supermercado','fabrica_racao','fabrica_nova',
+  'caixas_sup','lancamento_notas_sup','caixas_mat','vendedores_mat',
+  'caixas_vet','vendedores_vet','lancamento_notas_vet',
+];
 
 async function init() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS computadores (
-      id        SERIAL PRIMARY KEY,
-      ip        TEXT NOT NULL UNIQUE,
-      mac       TEXT NOT NULL UNIQUE,
-      descricao TEXT,
-      tipo      TEXT NOT NULL DEFAULT 'computador',
-      criado_em TIMESTAMP NOT NULL DEFAULT now()
+      id           SERIAL PRIMARY KEY,
+      ip           TEXT NOT NULL UNIQUE,
+      mac          TEXT NOT NULL UNIQUE,
+      descricao    TEXT,
+      tipo         TEXT NOT NULL DEFAULT 'computador',
+      departamento TEXT NOT NULL DEFAULT 'ti',
+      criado_em    TIMESTAMP NOT NULL DEFAULT now()
     )
   `);
   await pool.query(`
@@ -47,6 +54,12 @@ async function init() {
       ) THEN
         ALTER TABLE computadores ADD COLUMN tipo TEXT NOT NULL DEFAULT 'computador';
       END IF;
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'computadores' AND column_name = 'departamento'
+      ) THEN
+        ALTER TABLE computadores ADD COLUMN departamento TEXT NOT NULL DEFAULT 'ti';
+      END IF;
     END $$;
   `);
 }
@@ -66,7 +79,7 @@ app.get('/api/computadores', async (req, res) => {
 });
 
 app.post('/api/computadores', async (req, res) => {
-  const { ip, mac, descricao, tipo } = req.body ?? {};
+  const { ip, mac, descricao, tipo, departamento } = req.body ?? {};
 
   if (!ip || !IPV4_RE.test(ip.trim()))
     return res.status(400).json({ erro: 'IP inválido. Use o formato IPv4 (ex.: 192.168.0.1).' });
@@ -74,11 +87,13 @@ app.post('/api/computadores', async (req, res) => {
     return res.status(400).json({ erro: 'MAC inválido. Use o formato 00:1A:2B:3C:4D:5E (separador ":" ou "-").' });
   if (!tipo || !TIPOS_VALIDOS.includes(tipo))
     return res.status(400).json({ erro: 'Tipo de dispositivo inválido.' });
+  if (!departamento || !DEPTOS_VALIDOS.includes(departamento))
+    return res.status(400).json({ erro: 'Departamento inválido.' });
 
   try {
     const { rows } = await pool.query(
-      'INSERT INTO computadores (ip, mac, descricao, tipo) VALUES ($1, $2, $3, $4) RETURNING *',
-      [ip.trim(), mac.trim().toUpperCase(), descricao?.trim() ?? null, tipo]
+      'INSERT INTO computadores (ip, mac, descricao, tipo, departamento) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [ip.trim(), mac.trim().toUpperCase(), descricao?.trim() ?? null, tipo, departamento]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -96,7 +111,7 @@ app.put('/api/computadores/:id', async (req, res) => {
   if (!Number.isInteger(id) || id < 1)
     return res.status(400).json({ erro: 'ID inválido.' });
 
-  const { ip, mac, descricao, tipo } = req.body ?? {};
+  const { ip, mac, descricao, tipo, departamento } = req.body ?? {};
 
   if (!ip || !IPV4_RE.test(ip.trim()))
     return res.status(400).json({ erro: 'IP inválido. Use o formato IPv4 (ex.: 192.168.0.1).' });
@@ -104,11 +119,13 @@ app.put('/api/computadores/:id', async (req, res) => {
     return res.status(400).json({ erro: 'MAC inválido. Use o formato 00:1A:2B:3C:4D:5E (separador ":" ou "-").' });
   if (!tipo || !TIPOS_VALIDOS.includes(tipo))
     return res.status(400).json({ erro: 'Tipo de dispositivo inválido.' });
+  if (!departamento || !DEPTOS_VALIDOS.includes(departamento))
+    return res.status(400).json({ erro: 'Departamento inválido.' });
 
   try {
     const { rows, rowCount } = await pool.query(
-      'UPDATE computadores SET ip=$1, mac=$2, descricao=$3, tipo=$4 WHERE id=$5 RETURNING *',
-      [ip.trim(), mac.trim().toUpperCase(), descricao?.trim() ?? null, tipo, id]
+      'UPDATE computadores SET ip=$1, mac=$2, descricao=$3, tipo=$4, departamento=$5 WHERE id=$6 RETURNING *',
+      [ip.trim(), mac.trim().toUpperCase(), descricao?.trim() ?? null, tipo, departamento, id]
     );
     if (rowCount === 0) return res.status(404).json({ erro: 'Registro não encontrado.' });
     res.json(rows[0]);

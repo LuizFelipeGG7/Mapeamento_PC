@@ -282,8 +282,6 @@ button.btn-edit:hover {
   gap: .4rem;
   flex-wrap: wrap;
   padding: .85rem 1.1rem;
-  border-bottom: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.15);
 }
 
 .filter-tab {
@@ -333,6 +331,50 @@ button.btn-edit:hover {
   font-size: .72rem;
   font-weight: 600;
   padding: .25rem .75rem;
+  white-space: nowrap;
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.filter-tabs { border-bottom: none; flex: 1; }
+
+.filter-dept { padding: .6rem 1.1rem; }
+
+.dept-select {
+  appearance: none;
+  background: rgba(0,0,0,0.3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right .7rem center;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: .28rem 1.9rem .28rem .85rem;
+  outline: none;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+
+.dept-select:focus,
+.dept-select:hover { border-color: rgba(255,255,255,0.18); color: var(--text); }
+
+.dept-select option { background: #1e2130; }
+
+/* ── Dept badge ── */
+.dept-badge {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 500;
   white-space: nowrap;
 }
 

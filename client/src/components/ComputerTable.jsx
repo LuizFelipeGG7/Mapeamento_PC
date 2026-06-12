@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TIPOS, getTipo } from '../tipos'
+import { DEPARTAMENTOS, getDepartamento } from '../departamentos'
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString('pt-BR', {
@@ -29,12 +30,15 @@ const rowVariants = {
 export default function ComputerTable({ computers, loading, onEdit, onDelete }) {
   const [sort, setSort]         = useState(null)
   const [filtro, setFiltro]     = useState(null)
+  const [filtroDept, setFiltroDept] = useState('')
 
   function cycleSort() {
     setSort(prev => SORT_STATES[(SORT_STATES.indexOf(prev) + 1) % SORT_STATES.length])
   }
 
-  const filtrados = filtro ? computers.filter(c => c.tipo === filtro) : computers
+  const filtrados = computers
+    .filter(c => !filtro     || c.tipo         === filtro)
+    .filter(c => !filtroDept || c.departamento === filtroDept)
 
   const sorted = sort
     ? [...filtrados].sort((a, b) => {
@@ -47,7 +51,7 @@ export default function ComputerTable({ computers, loading, onEdit, onDelete }) 
     return (
       <div className="table-wrap">
         <table>
-          <thead><tr><th colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>Carregando...</th></tr></thead>
+          <thead><tr><th colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>Carregando...</th></tr></thead>
         </table>
       </div>
     )
@@ -55,7 +59,8 @@ export default function ComputerTable({ computers, loading, onEdit, onDelete }) 
 
   return (
     <div className="table-wrap">
-      {/* Filtros por tipo */}
+      {/* Filtros */}
+      <div className="filter-bar">
       <div className="filter-tabs">
         <button
           className={filtro === null ? 'filter-tab active' : 'filter-tab'}
@@ -84,12 +89,26 @@ export default function ComputerTable({ computers, loading, onEdit, onDelete }) 
           )
         })}
       </div>
+      <div className="filter-dept">
+        <select
+          className="dept-select"
+          value={filtroDept}
+          onChange={e => setFiltroDept(e.target.value)}
+        >
+          <option value="">Todos os departamentos</option>
+          {DEPARTAMENTOS.map(d => (
+            <option key={d.value} value={d.value}>{d.label}</option>
+          ))}
+        </select>
+      </div>
+      </div>
 
       <table>
         <thead>
           <tr>
             <th>#</th>
             <th>Tipo</th>
+            <th>Departamento</th>
             <th>
               <button className="th-sort" onClick={cycleSort}>
                 IP <span className={sort ? 'sort-icon active' : 'sort-icon'}>{SORT_ICONS[sort]}</span>
@@ -110,11 +129,12 @@ export default function ComputerTable({ computers, loading, onEdit, onDelete }) 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <td colSpan="7">Nenhum dispositivo cadastrado.</td>
+                <td colSpan="8">Nenhum dispositivo cadastrado.</td>
               </motion.tr>
             ) : (
               sorted.map((c, i) => {
-                const tipo = getTipo(c.tipo)
+                const tipo  = getTipo(c.tipo)
+                const depto = getDepartamento(c.departamento)
                 return (
                   <motion.tr
                     key={c.id}
@@ -137,6 +157,9 @@ export default function ComputerTable({ computers, loading, onEdit, onDelete }) 
                       >
                         {tipo.label}
                       </span>
+                    </td>
+                    <td>
+                      <span className="dept-badge">{depto.label}</span>
                     </td>
                     <td className="mono">{c.ip}</td>
                     <td className="mono">{c.mac}</td>
