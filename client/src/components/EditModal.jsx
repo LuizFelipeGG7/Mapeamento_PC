@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { TIPOS } from '../tipos'
 
 export default function EditModal({ computer, onSave, onClose }) {
+  const [tipo, setTipo]           = useState(computer.tipo ?? 'computador')
   const [ip, setIp]               = useState(computer.ip)
   const [mac, setMac]             = useState(computer.mac)
   const [descricao, setDescricao] = useState(computer.descricao ?? '')
@@ -11,7 +13,7 @@ export default function EditModal({ computer, onSave, onClose }) {
     e.preventDefault()
     setErro('')
     try {
-      await onSave(computer.id, ip.trim(), mac.trim(), descricao.trim())
+      await onSave(computer.id, ip.trim(), mac.trim(), descricao.trim(), tipo)
     } catch (err) {
       setErro(err.message)
     }
@@ -37,9 +39,21 @@ export default function EditModal({ computer, onSave, onClose }) {
         exit={{ opacity: 0, y: 16, scale: 0.97 }}
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
       >
-        <h2>Editar máquina</h2>
+        <h2>Editar dispositivo</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-row">
+            <div className="field">
+              <label htmlFor="edit-tipo">Tipo</label>
+              <select
+                id="edit-tipo"
+                value={tipo}
+                onChange={e => setTipo(e.target.value)}
+              >
+                {TIPOS.map(t => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
             <div className="field">
               <label htmlFor="edit-ip">Endereço IP</label>
               <input

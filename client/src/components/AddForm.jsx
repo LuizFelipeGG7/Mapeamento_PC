@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { TIPOS } from '../tipos'
 
 export default function AddForm({ onAdd }) {
+  const [tipo, setTipo]           = useState('computador')
   const [ip, setIp]               = useState('')
   const [mac, setMac]             = useState('')
   const [descricao, setDescricao] = useState('')
@@ -11,10 +13,11 @@ export default function AddForm({ onAdd }) {
     e.preventDefault()
     setErro('')
     try {
-      await onAdd(ip.trim(), mac.trim(), descricao.trim())
+      await onAdd(ip.trim(), mac.trim(), descricao.trim(), tipo)
       setIp('')
       setMac('')
       setDescricao('')
+      setTipo('computador')
     } catch (err) {
       setErro(err.message)
     }
@@ -22,9 +25,21 @@ export default function AddForm({ onAdd }) {
 
   return (
     <div className="card">
-      <h2>Adicionar máquina</h2>
+      <h2>Adicionar dispositivo</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-row">
+          <div className="field">
+            <label htmlFor="tipo">Tipo</label>
+            <select
+              id="tipo"
+              value={tipo}
+              onChange={e => setTipo(e.target.value)}
+            >
+              {TIPOS.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
           <div className="field">
             <label htmlFor="ip">Endereço IP</label>
             <input

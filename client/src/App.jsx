@@ -22,11 +22,11 @@ export default function App() {
 
   useEffect(() => { load() }, [])
 
-  async function handleAdd(ip, mac, descricao) {
+  async function handleAdd(ip, mac, descricao, tipo) {
     const res  = await fetch('/api/computadores', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, mac, descricao }),
+      body: JSON.stringify({ ip, mac, descricao, tipo }),
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.erro ?? 'Erro desconhecido.')
@@ -39,11 +39,11 @@ export default function App() {
     if (res.ok || res.status === 404) load()
   }
 
-  async function handleSave(id, ip, mac, descricao) {
+  async function handleSave(id, ip, mac, descricao, tipo) {
     const res  = await fetch(`/api/computadores/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, mac, descricao }),
+      body: JSON.stringify({ ip, mac, descricao, tipo }),
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.erro ?? 'Erro desconhecido.')
