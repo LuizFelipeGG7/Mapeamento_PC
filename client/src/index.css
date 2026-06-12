@@ -511,3 +511,55 @@ button.btn-danger:active { transform: translateY(0) scale(.97); }
 }
 
 .confirm-modal .modal-actions { justify-content: center; }
+
+/* ── Responsivo ── */
+
+/* Tablet: esconde MAC e data */
+@media (max-width: 1024px) {
+  .container { max-width: 100%; }
+
+  /* MAC = coluna 5, Cadastrado em = coluna 7 */
+  thead th:nth-child(5),
+  tbody td:nth-child(5),
+  thead th:nth-child(7),
+  tbody td:nth-child(7) { display: none; }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  body { padding: 1rem .75rem; font-size: 13px; }
+
+  h1 { font-size: 1.1rem; margin-bottom: .9rem; }
+
+  /* Esconde também o # */
+  thead th:nth-child(1),
+  tbody td:nth-child(1) { display: none; }
+
+  .card { padding: .9rem 1rem; }
+
+  .field { flex: 1 1 130px; }
+
+  input, select { font-size: .85rem; padding: .5rem .7rem; }
+
+  button.btn-add { font-size: .82rem; padding: .5rem 1rem; }
+
+  .filter-bar { flex-direction: column; align-items: stretch; gap: 0; }
+  .filter-dept { padding: .4rem .8rem; border-top: 1px solid var(--border); }
+  .dept-select { width: 100%; border-radius: var(--radius-sm); }
+
+  td { padding: .45rem .6rem; font-size: .8rem; }
+  thead th { padding: .55rem .6rem; }
+
+  .btn-actions { flex-direction: column; gap: .2rem; }
+  button.btn-edit,
+  button.btn-del { font-size: .72rem; padding: .22rem .55rem; }
+
+  .device-badge { font-size: .65rem; padding: .18rem .5rem; }
+  .dept-badge   { font-size: .72rem; }
+
+  .modal { padding: 1rem; border-radius: var(--radius-sm); }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+  .confirm-modal { max-width: 100%; }
+}
