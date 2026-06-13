@@ -58,7 +58,7 @@ export default function App() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        Inventário de <span>Computadores</span>
+        Inventário de <span>Dispositivos</span>
       </motion.h1>
 
       <motion.div
