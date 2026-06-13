@@ -159,5 +159,5 @@ app.get('*', (_req, res) => res.sendFile(join(__dirname, 'client/dist/index.html
 const PORT = process.env.PORT ?? 3000;
 
 init()
-  .then(() => app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`)))
+  .then(() => app.listen(PORT, '0.0.0.0', () => console.log(`Servidor rodando em http://localhost:${PORT}`)))
   .catch(err => { console.error('Falha ao inicializar:', err); process.exit(1); });
