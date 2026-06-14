@@ -1,5 +1,6 @@
 import express from 'express';
 import pg from 'pg';
+import { networkInterfaces } from 'os';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -159,5 +160,18 @@ app.get('*', (_req, res) => res.sendFile(join(__dirname, 'client/dist/index.html
 const PORT = process.env.PORT ?? 3000;
 
 init()
-  .then(() => app.listen(PORT, '0.0.0.0', () => console.log(`Servidor rodando em http://localhost:${PORT}`)))
+  .then(() => {
+    const nets = networkInterfaces();
+    let localIP = 'localhost';
+    for (const ifaces of Object.values(nets)) {
+      for (const iface of ifaces) {
+        if (iface.family === 'IPv4' && !iface.internal) { localIP = iface.address; break; }
+      }
+    }
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Servidor rodando em:`);
+      console.log(`  Local:   http://localhost:${PORT}`);
+      console.log(`  Rede:    http://${localIP}:${PORT}`);
+    });
+  })
   .catch(err => { console.error('Falha ao inicializar:', err); process.exit(1); });

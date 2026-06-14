@@ -3,8 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" id="favicon" type="image/png" href="/favicon.png" />
     <title>Inventário de Dispositivos</title>
+    <script>
+      (function () {
+        var c = document.createElement('canvas');
+        c.width = 32; c.height = 32;
+        var x = c.getContext('2d');
+        // fundo indigo arredondado
+        x.fillStyle = '#6366f1';
+        x.beginPath();
+        x.roundRect(0, 0, 32, 32, 6);
+        x.fill();
+        // monitor
+        x.strokeStyle = '#fff'; x.lineWidth = 2;
+        x.strokeRect(6, 7, 20, 12);
+        // pé
+        x.beginPath(); x.moveTo(16, 19); x.lineTo(16, 23); x.stroke();
+        // base
+        x.beginPath(); x.moveTo(12, 23); x.lineTo(20, 23); x.stroke();
+        // 3 pontos de rede
+        x.fillStyle = '#fff';
+        [[10,13],[16,13],[22,13]].forEach(function(p){
+          x.beginPath(); x.arc(p[0], p[1], 1.5, 0, 6.28); x.fill();
+        });
+        // linhas entre pontos
+        x.lineWidth = 1.2;
+        x.beginPath(); x.moveTo(11.5,13); x.lineTo(14.5,13); x.stroke();
+        x.beginPath(); x.moveTo(17.5,13); x.lineTo(20.5,13); x.stroke();
+
+        var url = c.toDataURL('image/png');
+        var el = document.getElementById('favicon');
+        el.href = url;
+        // Safari às vezes precisa recriar o elemento
+        var clone = el.cloneNode(true);
+        clone.href = url;
+        el.parentNode.replaceChild(clone, el);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
